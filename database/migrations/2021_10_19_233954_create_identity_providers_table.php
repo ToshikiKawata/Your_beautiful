@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePostsTable extends Migration
+class CreateIdentityProvidersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,15 @@ class CreatePostsTable extends Migration
      */
     public function up()
     {
-        Schema::create('posts', function (Blueprint $table) {
-            $table->id();
-            $table->string('caption')->nullable();
-            $table->text('info')->nullable();
+        Schema::create('identity_providers', function (Blueprint $table) {
             $table->foreignId('user_id')
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
+            $table->string('name');
+            $table->string('id');    // githubなどのプロバイダー名
+            $table->primary(['id', 'name']); //複合キーでインデックスを追加
+            $table->unique(['user_id', 'name']);      //ユニーク制約
             $table->timestamps();
         });
     }
@@ -32,6 +33,6 @@ class CreatePostsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('posts');
+        Schema::dropIfExists('identity_providers');
     }
 }

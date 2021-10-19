@@ -1,8 +1,9 @@
 @extends('layouts.main')
 @section('title', '新規登録')
 @section('content')
+    @include('patial.flash')
+    @include('patial.errors')
     <div class="col-8 col-offset-2 mx-auto">
-        <h1>新規登録</h1>
         <form action="{{ route('posts.store') }}" method="post" enctype="multipart/form-data">
             <div class="card mb-3">
                 @csrf

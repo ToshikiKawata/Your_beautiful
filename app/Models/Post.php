@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Post extends Model
 {
@@ -18,8 +19,17 @@ class Post extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function images()
+    public function image()
     {
-        return $this->hasMany(Image::class);
+        return $this->hasOne(Image::class);
+    }
+
+    public function getImagePathAttribute()
+    {
+        return 'posts/' . $this->image->name;
+    }
+    public function getImageUrlAttribute()
+    {
+        return Storage::url($this->image_path);
     }
 }

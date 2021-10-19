@@ -1,7 +1,8 @@
 @extends('layouts.main')
-@section('title', '編集画面')
+@section('title', '新規登録')
 @section('content')
-    <h1>詳細詳細</h1>
+    @include('patial.flash')
+    @include('patial.errors')
     <section>
         <article class="card shadow">
             <figure class="m-3">

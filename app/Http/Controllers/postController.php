@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\DB;
 
 class postController extends Controller
 {
+    public function __construct()
+    {
+        // アクションに合わせたpolicyのメソッドで認可されていないユーザーはエラーを投げる
+        $this->authorizeResource(Post::class, 'post');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -50,7 +55,7 @@ class postController extends Controller
         $post = new post();
         $post->fill($request->all());
         // ユーザーIDを追加
-        $post->user_id = 1;
+        $post->user_id = $request->user()->id;
         // ファイルの用意
         $file = $request->file;
 
@@ -85,10 +90,8 @@ class postController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Post $post)
     {
-        $post = Post::find($id);
-
         return view('posts.show', compact('post'));
     }
 
@@ -117,7 +120,7 @@ class postController extends Controller
             'caption' => 'required|max:255',
             'info' => 'max:255'
         ]);
-        // Articleのデータを更新
+        // postのデータを更新
         $post->fill($request->all());
         // トランザクション開始
         DB::beginTransaction();
