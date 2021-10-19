@@ -24,6 +24,7 @@ Route::get('/dashboard', function () {
 Route::resource('posts', PostController::class)
     ->only(['create', 'store', 'edit', 'update', 'destroy'])
     ->middleware('auth');
+    
 Route::resource('posts', PostController::class)
     ->only(['show', 'index']);
 
