@@ -15,7 +15,6 @@ use App\Http\Controllers\Auth\OAuthController;
 |
 */
 
-
 Route::get('/', [PostController::class, 'index'])
     ->name('root');
 

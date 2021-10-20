@@ -1,1 +1,1 @@
-<h1 class="text-xl">Your Beautiful</h1>
+<h1>Your Beautiful</h1>
