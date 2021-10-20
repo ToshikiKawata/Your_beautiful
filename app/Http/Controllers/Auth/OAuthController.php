@@ -10,33 +10,35 @@ use App\Models\IdentityProvider;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Providers\RouteServiceProvider;
-  
+
 
 class OAuthController extends Controller
 {
-    public function socialOAuth()
+    public function redirectToProvider($provider)
     {
-        return Socialite::driver('github')->redirect();
+        return Socialite::driver($provider)->redirect();
     }
 
-    public function handleProviderCallback()
+    public function oauthCallBack($provider)
     {
-        // 認証情報が返ってこなかった場合はログイン画面にリダイレクト
         try {
-            $socialUser = Socialite::with('github')->user();
-        } catch(\Exception $e) {
-            return redirect('/login')->withErrors(['oauth_error' => '予期せぬエラーが発生しました']);
+            $socialUser = Socialite::with($provider)->user();
+        } catch (\Throwable $th) {
+            return redirect('/login')->withErrors(['oauth' => 'ユーザー情報を読み込めませんでした']);
         }
-        
-        // emailで検索してユーザーが見つかればそのユーザーを、見つからなければ新しいインスタンスを生成
-        $user = User::firstOrNew(['email' => $socialUser->getEmail()]);
 
-        // ユーザーが認証済みか確認
+        $user = User::firstOrNew(['email' => $socialUser->getEmail()]);
+        $identityProvider = IdentityProvider::firstOrNew([
+            'id' => $socialUser->getId(),
+            'name' => $provider
+        ]);
+
         if (!$user->exists) {
-            $user->name = $socialUser->getNickname() ?? $socialUser->name;
+            $user->name = $socialUser->name ?? $socialUser->getNickname();
+            $user->email = $socialUser->getEmail();
             $identityProvider = new IdentityProvider([
                 'id' => $socialUser->getId(),
-                'name' => 'github'
+                'name' => $provider
             ]);
 
             DB::beginTransaction();
@@ -50,9 +52,10 @@ class OAuthController extends Controller
                     ->route('login')
                     ->withErrors(['transaction_error' => '保存に失敗しました']);
             }
+        } elseif (!$identityProvider->exists) {
+            $user->identityProvider()->save($identityProvider);
         }
 
-        // ログイン
         Auth::login($user);
 
         return redirect(RouteServiceProvider::HOME);
