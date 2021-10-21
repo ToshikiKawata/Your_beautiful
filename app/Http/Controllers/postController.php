@@ -57,26 +57,34 @@ class postController extends Controller
         // ユーザーIDを追加
         $post->user_id = $request->user()->id;
         // ファイルの用意
-        $file = $request->file;
+        $files = $request->file;
 
         // トランザクション開始
         DB::beginTransaction();
         try {
             // post保存
             $post->save();
-            // 画像ファイル保存
-            $path = Storage::putFile('posts', $file);
-            // imageモデルの情報を用意
-            $image = new Image([
-                'post_id' => $post->id,
-                'org_name' => $file->getClientOriginalName(),
-                'name' => basename($path)
-            ]);
-            // image保存
-            $image->save();
+
+            foreach ($files as $file) {
+                // 画像ファイル保存
+                $path = Storage::putFile('posts', $file);
+                // imageモデルの情報を用意
+                $image = new Image([
+                    'post_id' => $post->id,
+                    'org_name' => $file->getClientOriginalName(),
+                    'name' => basename($path)
+                ]);
+                // image保存
+                $image->save();
+            }
             // トランザクション終了(成功)
             DB::commit();
         } catch (\Exception $e) {
+            foreach ($files as $file) {
+                if (!empty($path)) {
+                    Storage::delete($path);
+                }
+            }
             // トランザクション終了(失敗)
             DB::rollback();
             back()->withErrors(['error' => '保存に失敗しました']);
@@ -145,14 +153,11 @@ class postController extends Controller
      */
     public function destroy(Post $post)
     {
-        DB::beginTransaction();
-        try {
-            // 削除処理
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()
-                ->withErrors($e->getMessage());
+        $images = $post->images;
+        $post->delete();
+
+        foreach ($images as $image) {
+            Storage::delete('posts/' . $image->name);
         }
         return redirect()
             ->route('posts.index')
