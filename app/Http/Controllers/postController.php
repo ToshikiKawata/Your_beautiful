@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Image;
 use App\Models\Post;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\PostRequest;
 
 
 class postController extends Controller
@@ -44,13 +44,8 @@ class postController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Post $post)
+    public function store(PostRequest $request, Post $post)
     {
-        // $request->validate([
-        //     'file' => 'required|file|image',
-        //     'caption' => 'required|max:255',
-        //     'info' => 'max:255'
-        // ]);
         // postのデータを用意
         $post = new post();
         $post->fill($request->all());
@@ -121,13 +116,8 @@ class postController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Post $post)
+    public function update(PostRequest $request, Post $post)
     {
-        // バリデーション
-        $request->validate([
-            'caption' => 'required|max:255',
-            'info' => 'max:255'
-        ]);
         // postのデータを更新
         $post->fill($request->all());
         // トランザクション開始
