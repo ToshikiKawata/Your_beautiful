@@ -7,8 +7,14 @@
         <article class="card shadow position-relative">
             <figure class="m-3">
                 <div class="row">
-                    <div class="col-6">
-                        <img src="{{ $post->image_url }}" width="100%">
+                    <div class="flex flex-wrap -mx-1 lg:-mx-4 mb-4">
+                        {{-- {{ dd($article->attachments) }} --}}
+                        @foreach ($post->images as $image)
+                            <article class="w-full px-4 md:w-1/4 text-xl text-gray-800 leading-normal">
+                                <img class="w-full mb-2" src="{{ Storage::url('posts/' . $image->name) }}"
+                                    alt="image">
+                            </article>
+                        @endforeach
                     </div>
                     <div class="col-6">
                         <figcaption>

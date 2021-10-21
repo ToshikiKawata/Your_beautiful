@@ -46,11 +46,11 @@ class postController extends Controller
      */
     public function store(Request $request, Post $post)
     {
-        $request->validate([
-            'file' => 'required|file|image',
-            'caption' => 'required|max:255',
-            'info' => 'max:255'
-        ]);
+        // $request->validate([
+        //     'file' => 'required|file|image',
+        //     'caption' => 'required|max:255',
+        //     'info' => 'max:255'
+        // ]);
         // postのデータを用意
         $post = new post();
         $post->fill($request->all());
