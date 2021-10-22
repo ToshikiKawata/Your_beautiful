@@ -53,29 +53,27 @@ class postController extends Controller
         $post->user_id = $request->user()->id;
         // ファイルの用意
         $files = $request->file;
-        $paths[] = $path;
+        $paths = [];
 
         // トランザクション開始
         DB::beginTransaction();
         try {
             // post保存
             $post->save();
-
-            //$pathを保持・・・？
-            $paths[] = $path;
-
+            
             foreach ($files as $file) {
                 // 画像ファイル保存
                 $path = Storage::putFile('posts', $file);
+                $paths[] = $path;
                 // imageモデルの情報を用意
                 $image = new Image([
                     'post_id' => $post->id,
                     'org_name' => $file->getClientOriginalName(),
                     'name' => basename($path)
                 ]);
-                // image保存
                 $image->save();
             }
+
             // トランザクション終了(成功)
             DB::commit();
         } catch (\Exception $e) {
