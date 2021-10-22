@@ -60,18 +60,20 @@ class postController extends Controller
         try {
             // post保存
             $post->save();
-            
-            foreach ($files as $file) {
-                // 画像ファイル保存
-                $path = Storage::putFile('posts', $file);
-                $paths[] = $path;
-                // imageモデルの情報を用意
-                $image = new Image([
-                    'post_id' => $post->id,
-                    'org_name' => $file->getClientOriginalName(),
-                    'name' => basename($path)
-                ]);
-                $image->save();
+
+            if ($files = $request->file('file')) {
+                foreach ($files as $file) {
+                    // 画像ファイル保存
+                    $path = Storage::putFile('posts', $file);
+                    $paths[] = $path;
+                    // imageモデルの情報を用意
+                    $image = new Image([
+                        'post_id' => $post->id,
+                        'org_name' => $file->getClientOriginalName(),
+                        'name' => basename($path)
+                    ]);
+                    $image->save();
+                }
             }
 
             // トランザクション終了(成功)
