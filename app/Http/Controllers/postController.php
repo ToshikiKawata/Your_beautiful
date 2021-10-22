@@ -75,12 +75,11 @@ class postController extends Controller
                     $image->save();
                 }
             }
-
             // トランザクション終了(成功)
             DB::commit();
         } catch (\Exception $e) {
-            foreach ($files as $file) {
-                if (!empty($path)) {
+            if (!empty($paths)) {
+                foreach ($paths as $path) {
                     Storage::delete($path);
                 }
             }
@@ -124,16 +123,10 @@ class postController extends Controller
     {
         // postのデータを更新
         $post->fill($request->all());
-        // トランザクション開始
-        DB::beginTransaction();
         try {
             // post保存
             $post->save();
-            // トランザクション終了(成功)
-            DB::commit();
         } catch (\Exception $e) {
-            // トランザクション終了(失敗)
-            DB::rollback();
             back()->withErrors(['error' => '保存に失敗しました']);
         }
         return redirect(route('posts.index'))->with(['flash_message' => '更新が完了しました']);
